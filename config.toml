@@ -34,7 +34,7 @@ name = "LinkedIn"
 url = "https://www.linkedin.com/in/kristen-tidmuss-116ab8105/"
 
 [assets]
-favicon = "https://kristentidmuss.dev/images/avatar/favicon.ico"
-favicon16x16 = "https://kristentidmuss.dev/images/avatar/favicon-16x16.png"
-favicon32x32 = "https://kristentidmuss.dev/images/avatar/favicon-32x32.png"
-apple_touch_icon = "https://kristentidmuss.dev/images/avatar/apple-touch-icon.png"
+favicon = "https://kristentidmuss.dev/favicon.ico"
+favicon16x16 = "https://kristentidmuss.dev/favicon-16x16.png"
+favicon32x32 = "https://kristentidmuss.dev/favicon-32x32.png"
+apple_touch_icon = "https://kristentidmuss.dev/apple-touch-icon.png"
