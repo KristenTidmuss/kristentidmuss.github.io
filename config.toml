@@ -32,3 +32,9 @@ url = "https://github.com/KristenTidmuss"
 [[params.socialIcons]]
 name = "LinkedIn"
 url = "https://www.linkedin.com/in/kristen-tidmuss-116ab8105/"
+
+[assets]
+favicon = "https://kristentidmuss.dev/images/avatar/favicon.ico"
+favicon16x16 = "https://kristentidmuss.dev/images/avatar/favicon-16x16.png"
+favicon32x32 = "https://kristentidmuss.dev/images/avatar/favicon-32x32.png"
+apple_touch_icon = "https://kristentidmuss.dev/images/avatar/apple-touch-icon.png"
