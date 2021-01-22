@@ -8,6 +8,7 @@ publishDir = "docs"
 defaultTheme = "dark"
 disableThemeToggle = true
 ShowReadingTime = true
+env = "production"
 
 [params.profileMode]
 enabled = true
