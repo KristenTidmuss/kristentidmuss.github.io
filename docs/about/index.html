@@ -12,7 +12,7 @@
 Top 5 Skills    Soft Skills Hard Skills Programming Languages     Communication Software Development C#   Collaboration Database Development Python   Critical Thinking Web Development SQL   Problem Solving Git JS   Business Analysis Debugging HTML    Top 5 Hobbies  Developing small applications Tinkering with hardware Configuring linux servers Researching and experimenting with emerging technologies Watching movies and series with my SO  ">
 <meta name="author" content="">
 <link rel="canonical" href="https://KristenTidmuss.dev/about/" />
-<link href="/assets/css/stylesheet.min.2831eee1b693474a13e24a6560472b6f800c9518a030dcd181e6d028f8e99c3b.css" integrity="" rel="preload stylesheet"
+<link href="/assets/css/stylesheet.min.3b4ed2e80185ab356f837eda72c1debdea24ca2d707d78b82f2534624843aaa0.css" integrity="" rel="preload stylesheet"
     as="style">
 
 <link rel="icon" href="https://KristenTidmuss.dev/favicon.ico">
@@ -83,12 +83,12 @@ Top 5 Skills    Soft Skills Hard Skills Programming Languages     Communication 
 <header class="header">
     <nav class="nav">
         <div class="logo">
-            <a href="https://KristenTidmuss.dev" accesskey="h" title="Kristen Tidmuss (Alt + H)">Kristen Tidmuss</a>
             <span class="logo-switches">
+                
                 
             </span>
         </div>
-        <ul class="menu" id="menu" onscroll="menu_on_scroll()"></ul>
+        <ul id="menu" onscroll="menu_on_scroll()"></ul>
     </nav>
 </header>
 
@@ -96,15 +96,13 @@ Top 5 Skills    Soft Skills Hard Skills Programming Languages     Communication 
 
 <article class="post-single">
   <header class="post-header">
+
     <h1 class="post-title">
       
     </h1>
-    <div class="post-description">
-      
-    </div>
     <div class="post-meta">1 min
 
-    </div>
+</div>
   </header> 
 
   <div class="post-content">
@@ -196,7 +194,7 @@ Top 5 Skills    Soft Skills Hard Skills Programming Languages     Communication 
             if (id === "top") {
                 history.replaceState(null, null, " ");
             } else {
-                history.replaceState(null, null, `#${id}`);
+                history.pushState(null, null, `#${id}`);
             }
         });
     });

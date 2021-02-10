@@ -11,7 +11,7 @@
 <meta name="description" content="An EvE Online tool to find characters with similar corp history">
 <meta name="author" content="Kristen Tidmuss">
 <link rel="canonical" href="https://KristenTidmuss.dev/projects/eveconnectionfinder/" />
-<link href="/assets/css/stylesheet.min.2831eee1b693474a13e24a6560472b6f800c9518a030dcd181e6d028f8e99c3b.css" integrity="" rel="preload stylesheet"
+<link href="/assets/css/stylesheet.min.3b4ed2e80185ab356f837eda72c1debdea24ca2d707d78b82f2534624843aaa0.css" integrity="" rel="preload stylesheet"
     as="style">
 
 <link rel="icon" href="https://KristenTidmuss.dev/favicon.ico">
@@ -89,9 +89,10 @@
             <a href="https://KristenTidmuss.dev" accesskey="h" title="Kristen Tidmuss (Alt + H)">Kristen Tidmuss</a>
             <span class="logo-switches">
                 
+                
             </span>
         </div>
-        <ul class="menu" id="menu" onscroll="menu_on_scroll()"></ul>
+        <ul id="menu" onscroll="menu_on_scroll()"></ul>
     </nav>
 </header>
 
@@ -99,6 +100,7 @@
 
 <article class="post-single">
   <header class="post-header">
+
     <h1 class="post-title">
       EvE Connection Finder
     </h1>
@@ -109,7 +111,7 @@
 
 January 22, 2020&nbsp;·&nbsp;1 min&nbsp;·&nbsp;Kristen Tidmuss
 
-    </div>
+</div>
   </header> 
 
   <div class="post-content">
@@ -162,7 +164,7 @@ January 22, 2020&nbsp;·&nbsp;1 min&nbsp;·&nbsp;Kristen Tidmuss
             if (id === "top") {
                 history.replaceState(null, null, " ");
             } else {
-                history.replaceState(null, null, `#${id}`);
+                history.pushState(null, null, `#${id}`);
             }
         });
     });
