@@ -1,5 +1,10 @@
-
-# Kris
+---
+title: "Kris"
+date: "2020-02-10"
+tags: ["About","Personal"]
+draft: false
+hideMeta: true
+---
 
 I am a 24 year old software developer currently living in Nottingham, UK. For the last 6 years I have been working for Quotient Sciences in Ruddington under many job roles. Most recently as an IT Application Support Analyst. Currently I am studying at [Nottingham Trent University](https://www.ntu.ac.uk/study-and-courses/courses/find-your-course/science-technology/apprenticeship/2020-21/l6-digital-and-tech-solutions-professional-software-engineering) working towards a degree in software development along side my full time job.
 
