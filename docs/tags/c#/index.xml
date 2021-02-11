@@ -6,14 +6,14 @@
     <description>Recent content in C# on Kristen Tidmuss</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 22 Jan 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://KristenTidmuss.dev/tags/c#/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 11 Feb 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://KristenTidmuss.dev/tags/c#/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>EvE Connection Finder</title>
       <link>https://KristenTidmuss.dev/projects/eveconnectionfinder/</link>
-      <pubDate>Wed, 22 Jan 2020 00:00:00 +0000</pubDate>
+      <pubDate>Tue, 11 Feb 2020 00:00:00 +0000</pubDate>
       
       <guid>https://KristenTidmuss.dev/projects/eveconnectionfinder/</guid>
-      <description>This is a small project I created along side my friend Clayton. I came up with the idea when more and more frequently I would login to the game EvE Online after long breaks and have people recognise me and I would have no idea who they were.
+      <description>Intro This is a small project I created along side my friend Clayton. I came up with the idea when more and more frequently I would login to the game EvE Online after long breaks and have people recognise me and I would have no idea who they were.
 To solve this issue I have created EvE Connection Finder, Simply type your name into the top box and either paste an individual or the entirety of the system into the second and hit submit.</description>
     </item>
     

@@ -6,7 +6,17 @@
     <description>Recent content on Kristen Tidmuss</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 10 Feb 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://KristenTidmuss.dev/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Tue, 11 Feb 2020 00:00:00 +0000</lastBuildDate><atom:link href="https://KristenTidmuss.dev/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>EvE Connection Finder</title>
+      <link>https://KristenTidmuss.dev/projects/eveconnectionfinder/</link>
+      <pubDate>Tue, 11 Feb 2020 00:00:00 +0000</pubDate>
+      
+      <guid>https://KristenTidmuss.dev/projects/eveconnectionfinder/</guid>
+      <description>Intro This is a small project I created along side my friend Clayton. I came up with the idea when more and more frequently I would login to the game EvE Online after long breaks and have people recognise me and I would have no idea who they were.
+To solve this issue I have created EvE Connection Finder, Simply type your name into the top box and either paste an individual or the entirety of the system into the second and hit submit.</description>
+    </item>
+    
     <item>
       <title>Kris</title>
       <link>https://KristenTidmuss.dev/about/</link>
@@ -15,16 +25,6 @@
       <guid>https://KristenTidmuss.dev/about/</guid>
       <description>I am a 24 year old software developer currently living in Nottingham, UK. For the last 6 years I have been working for Quotient Sciences in Ruddington under many job roles. Most recently as an IT Application Support Analyst. Currently I am studying at Nottingham Trent University working towards a degree in software development along side my full time job.
 Top 5 Skills    Soft Skills Hard Skills Programming Languages     Communication Software Development C#   Collaboration Database Development Python   Critical Thinking Web Development SQL   Problem Solving Git JS   Business Analysis Debugging HTML    Top 5 Hobbies  Developing small applications Tinkering with hardware Configuring linux servers Researching and experimenting with emerging technologies Watching movies and series with my SO  </description>
-    </item>
-    
-    <item>
-      <title>EvE Connection Finder</title>
-      <link>https://KristenTidmuss.dev/projects/eveconnectionfinder/</link>
-      <pubDate>Wed, 22 Jan 2020 00:00:00 +0000</pubDate>
-      
-      <guid>https://KristenTidmuss.dev/projects/eveconnectionfinder/</guid>
-      <description>This is a small project I created along side my friend Clayton. I came up with the idea when more and more frequently I would login to the game EvE Online after long breaks and have people recognise me and I would have no idea who they were.
-To solve this issue I have created EvE Connection Finder, Simply type your name into the top box and either paste an individual or the entirety of the system into the second and hit submit.</description>
     </item>
     
   </channel>
