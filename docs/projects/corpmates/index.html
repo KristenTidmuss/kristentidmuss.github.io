@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en" dir="auto">
+
+<head><meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+<meta name="robots" content="index, follow">
+<title>CorpMates | Kristen Tidmuss</title>
+
+<meta name="keywords" content="EvE Online, C#, MVC" />
+<meta name="description" content="An EvE Online tool to find characters with similar corp history">
+<meta name="author" content="Kristen Tidmuss">
+<link rel="canonical" href="https://KristenTidmuss.dev/projects/corpmates/" />
+<link href="/assets/css/stylesheet.min.3b4ed2e80185ab356f837eda72c1debdea24ca2d707d78b82f2534624843aaa0.css" integrity="" rel="preload stylesheet"
+    as="style">
+
+<link rel="icon" href="https://KristenTidmuss.dev/favicon.ico">
+<link rel="icon" type="image/png" sizes="16x16" href="https://KristenTidmuss.dev/favicon-16x16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="https://KristenTidmuss.dev/favicon-32x32.png">
+<link rel="apple-touch-icon" href="https://KristenTidmuss.dev/apple-touch-icon.png">
+<link rel="mask-icon" href="https://KristenTidmuss.dev/safari-pinned-tab.svg">
+<meta name="theme-color" content="#2e2e33">
+<meta name="msapplication-TileColor" content="#2e2e33">
+<meta name="generator" content="Hugo 0.80.0" />
+
+
+<meta property="og:title" content="CorpMates" />
+<meta property="og:description" content="An EvE Online tool to find characters with similar corp history" />
+<meta property="og:type" content="article" />
+<meta property="og:url" content="https://KristenTidmuss.dev/projects/corpmates/" />
+<meta property="og:image" content="https://KristenTidmuss.dev/%3Cimg%3E" /><meta property="article:published_time" content="2020-02-11T00:00:00+00:00" />
+<meta property="article:modified_time" content="2020-02-11T00:00:00+00:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:image" content="https://KristenTidmuss.dev/%3Cimg%3E" />
+<meta name="twitter:title" content="CorpMates"/>
+<meta name="twitter:description" content="An EvE Online tool to find characters with similar corp history"/>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "CorpMates",
+  "name": "CorpMates",
+  "description": "Intro This is a small project I created along side my friend Clayton. I came up with the idea when more and more frequently I would login to the game EvE Online after long breaks …",
+  "keywords": [
+    "EvE Online", "C#", "MVC"
+  ],
+  "articleBody": "\nIntro This is a small project I created along side my friend Clayton. I came up with the idea when more and more frequently I would login to the game EvE Online after long breaks and have people recognize me and I would have no idea who they were.\nTo solve this issue I have created CorpMates, Simply type your name into the top box and either paste an individual or the entirety of the system into the second and hit submit. This will then take between a few seconds and a minute to process. Once complete a list of anyone you share mutual history with will be shown below. Code Architecture This project is made using the new .NET 5 with ASP.net MVC as the backend. When the user submits a request the server then goes and gets all the valid information from EvEs ESI and compares it all to generate a list of common corporations.\nMain Page The main page has very little code itself. Once you have filled in the main character name and a list to compare with a simle process begins.\nAs you can see here firstly it get the Character ID and corp history for the main character then proceeds to loop through every user pasted. This can take some time and in testing a large paste of 40 or so users could take up to 15 minutes due to the speed of ESI and rate of errors it throws. To solved this I implemented Parallels so multiple users can be processed at once.\n//Data is returned from the form here //Process Details for user character var userCharacter = new Character {charName = form.UserCharacter}; userCharacter.GetCharID(); userCharacter.GetCorps(); //Process details for paste var pastedCharacters = new List(); string[] charList = form.PasteList.Replace(userCharacter.charName,\"\").Split(new char[] {'\\r', '\\n'}, StringSplitOptions.RemoveEmptyEntries); //Loop each user to get their corp history Parallel.ForEach(charList, name = { var character = new Character {charName = name}; character.GetCharID(); character.GetCorps(); pastedCharacters.Add(character); }); //Find connections ViewBag.connections = userCharacter.FindConnections(pastedCharacters) .OrderByDescending(c = c.overlapStart); Processing Corps The process for getting all the corp history is also rather simple once you get your head around the main concepts, the main difficulty was finding the end dates of corp membership however a small foreach loop solved that.\nAs you can see I chose to store the data in a List object which I find just make it easier to work with. Then all I needed to do was call for he corp history then loop through each entry to get the full details of the corp.\npublic void GetCorps() { //Get history list  string corpHistoryJson = DownloadString(\"https://esi.evetech.net/latest/characters/\" + this.charID + \"/corporationhistory datasource=tranquility\"); var corpHistoryResult = JsonConvert.DeserializeObject(corpHistoryJson); //Process into Corp class  this.Corps = new List(); Parallel.ForEach(corpHistoryResult, history = { //corp name  string corpNameSearch = DownloadString(\"https://esi.evetech.net/latest/corporations/\" + history.corporation_id + \"/?datasource=tranquility\"); var corpNameSearchResult = JsonConvert.DeserializeObject(corpNameSearch); //  var corp = new Corp { corpID = history.corporation_id, corpName = corpNameSearchResult.name, startDate = DateTime.Parse(history.start_date) }; Corps.Add(corp); }); //Populate end dates  Corp previousCorp = null; foreach (var c in Corps.OrderByDescending(c = c.startDate)) { if (previousCorp != null) { c.endDate = previousCorp.startDate; } else { c.endDate = DateTime.MaxValue; } previousCorp = c; } } Finding Connections The last step was to find the connections. This was rather difficult to figure out however I believe I found an efficient way to do so and although it may look a bit bulky it takes no time at all to actually process.\nThe way this works is first, excluding all rookie NPC corps as they are irrelevant to the point of this task. Next it runs foreach of the main characters corp and another foreach of users matching their history. Then for each of those characters it gets the overlapping corp and calculates the start/end dates where you shared the history.\npublic List FindConnections(List pastedCharacters) { var Connections = new List(); //Define rookie corps to ignore  var rookieCorps = new string[] { \"Hedion University\", \"Imperial Academy\", \"Royal Amarr Institute\", \"School of Applied Knowledge\", \"Science and Trade Institute\", \"State War Academy\", \"Center for Advanced Studies\", \"Federal Navy Academy\", \"University of Caille\", \"Pator Tech School\", \"Republic Military School\", \"Republic University\", \"Viziam\", \"Ministry of War\", \"Imperial Shipment\", \"Perkone\", \"Caldari Provisions\", \"Deep Core Mining Inc.\", \"The Scope\", \"Aliastra\", \"Garoun Investment Bank\", \"Brutor Tribe\", \"Sebiestor Tribe\", \"Native Freshfood\", \"Ministry of Internal Order\", \"Expert Distribution\", \"Impetus\", \"Brutor Tribe\", \"Amarr Imperial Navy\", \"Ytiri\", \"Federal Intelligence Office\", \"Republic Security Services\", \"Dominations\", \"Guristas\"}; //Loop Chars corp history  foreach (var corp in this.Corps.Where(c = !rookieCorps.Contains(c.corpName))) { //get pasted chars who share that corp at same time  foreach (var match in pastedCharacters.Where(p = p.Corps.Count(c = c.corpID == corp.corpID \u0026\u0026 c.startDate 0)) { var matchEntry = match.Corps.FirstOrDefault(c = c.corpID == corp.corpID \u0026\u0026 c.startDate //Calculate overlap dates  DateTime entityStart; DateTime entityEnd; if(matchEntry.startDate  corp.startDate) { entityStart = matchEntry.startDate;} else { entityStart = corp.startDate;} if(matchEntry.endDate  corp.endDate) { entityEnd = corp.endDate;} else { entityEnd = matchEntry.endDate;} var connection = new CharacterConnection() { charID = match.charID, charName = match.charName, entityID = corp.corpID, entityName = corp.corpName, overlapStart = entityStart, overlapEnd = entityEnd }; Connections.Add(connection); } } return Connections; } Alliances Alliances are a whole different beast and I am yet to dream up an efficient way to calculate those. I know it will involve pulling the alliance history for every corp in every players history but then building a timeline and matching it all up is way over my head. This is an ongoing project though and I am confident I will figure it out some day!\n",
+  "wordCount" : "918",
+  "inLanguage": "en",
+  "image":"https://KristenTidmuss.dev/%3Cimg%3E","datePublished": "2020-02-11T00:00:00Z",
+  "dateModified": "2020-02-11T00:00:00Z",
+  "author":{
+    "@type": "Person",
+    "name": "Kristen Tidmuss"
+  },
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "https://KristenTidmuss.dev/projects/corpmates/"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "Kristen Tidmuss",
+    "logo": {
+      "@type": "ImageObject",
+      "url": "https://KristenTidmuss.dev/favicon.ico"
+    }
+  }
+}
+</script>
+
+
+
+</head>
+
+<body class=" dark" id="top">
+<noscript>
+    <style type="text/css">
+        .theme-toggle,
+        .top-link {
+            display: none;
+        }
+
+    </style>
+</noscript>
+<header class="header">
+    <nav class="nav">
+        <div class="logo">
+            <a href="https://KristenTidmuss.dev" accesskey="h" title="Kristen Tidmuss (Alt + H)">Kristen Tidmuss</a>
+            <span class="logo-switches">
+                
+                
+            </span>
+        </div>
+        <ul id="menu" onscroll="menu_on_scroll()"></ul>
+    </nav>
+</header>
+
+    <main class="main">
+
+<article class="post-single">
+  <header class="post-header">
+
+    <h1 class="post-title">
+      CorpMates
+    </h1>
+    <div class="post-description">
+      An EvE Online tool to find characters with similar corp history
+    </div>
+    <div class="post-meta">
+
+February 11, 2020&nbsp;·&nbsp;5 min&nbsp;·&nbsp;Kristen Tidmuss
+
+</div>
+  </header> 
+
+  <div class="toc">
+    <details >
+      <summary accesskey="c" title="(Alt + C)">
+        <div class="details">Table of Contents</div>
+      </summary>
+      <div class="inner"><ul><li>
+        <a href="#intro" aria-label="Intro">Intro</a></li><li>
+        <a href="#code" aria-label="Code">Code</a><ul>
+            <li>
+        <a href="#architecture" aria-label="Architecture">Architecture</a></li><li>
+        <a href="#main-page" aria-label="Main Page">Main Page</a></li><li>
+        <a href="#processing-corps" aria-label="Processing Corps">Processing Corps</a></li><li>
+        <a href="#finding-connections" aria-label="Finding Connections">Finding Connections</a></li><li>
+        <a href="#alliances" aria-label="Alliances">Alliances</a></li></ul>
+</li></ul>
+      </div>
+    </details>
+  </div>
+  <div class="post-content">
+<p><a href="https://github.com/KristenTidmuss/CorpMates"><img src="/images/github.png" alt="GitHub"></a></p>
+<h1 id="intro">Intro<a hidden class="anchor" aria-hidden="true" href="#intro">#</a></h1>
+<p>This is a small project I created along side my friend Clayton. I came up with the idea when more and more frequently I would login to the game EvE Online after long breaks and have people recognize me and I would have no idea who they were.</p>
+<p>To solve this issue I have created CorpMates, Simply type your name into the top box and either paste an individual or the entirety of the system into the second and hit submit. This will then take between a few seconds and a minute to process. Once complete a list of anyone you share mutual history with will be shown below.
+<img src="/images/projects/CorpMatesMVC.png" alt="Webpage Demo"></p>
+<h1 id="code">Code<a hidden class="anchor" aria-hidden="true" href="#code">#</a></h1>
+<h2 id="architecture">Architecture<a hidden class="anchor" aria-hidden="true" href="#architecture">#</a></h2>
+<p>This project is made using the new .NET 5 with ASP.net MVC as the backend. When the user submits a request the server then goes and gets all the valid information from EvEs ESI and compares it all to generate a list of common corporations.</p>
+<h2 id="main-page">Main Page<a hidden class="anchor" aria-hidden="true" href="#main-page">#</a></h2>
+<p>The main page has very little code itself. Once you have filled in the main character name and a list to compare with a simle process begins.</p>
+<p>As you can see here firstly it get the Character ID and corp history for the main character then proceeds to loop through every user pasted. This can take some time and in testing a large paste of 40 or so users could take up to 15 minutes due to the speed of ESI and rate of errors it throws. To solved this I implemented Parallels so multiple users can be processed at once.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C#" data-lang="C#"><span style="color:#75715e">//Data is returned from the form here
+</span><span style="color:#75715e">//Process Details for user character
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> userCharacter = <span style="color:#66d9ef">new</span> Character {charName = form.UserCharacter};
+userCharacter.GetCharID();
+userCharacter.GetCorps();
+<span style="color:#75715e">//Process details for paste
+</span><span style="color:#75715e"></span><span style="color:#66d9ef">var</span> pastedCharacters = <span style="color:#66d9ef">new</span> List&lt;Character&gt;();
+<span style="color:#66d9ef">string</span>[] charList =
+    form.PasteList.Replace(userCharacter.charName,<span style="color:#e6db74">&#34;&#34;</span>).Split(<span style="color:#66d9ef">new</span> <span style="color:#66d9ef">char</span>[] {<span style="color:#e6db74">&#39;\r&#39;</span>, <span style="color:#e6db74">&#39;\n&#39;</span>}, StringSplitOptions.RemoveEmptyEntries);
+<span style="color:#75715e">//Loop each user to get their corp history
+</span><span style="color:#75715e"></span>Parallel.ForEach(charList, name =&gt;
+{
+    <span style="color:#66d9ef">var</span> character = <span style="color:#66d9ef">new</span> Character {charName = name};
+    character.GetCharID();
+    character.GetCorps();
+    pastedCharacters.Add(character);
+});
+<span style="color:#75715e">//Find connections
+</span><span style="color:#75715e"></span>ViewBag.connections = userCharacter.FindConnections(pastedCharacters)
+    .OrderByDescending(c =&gt; c.overlapStart);
+</code></pre></div><h2 id="processing-corps">Processing Corps<a hidden class="anchor" aria-hidden="true" href="#processing-corps">#</a></h2>
+<p>The process for getting all the corp history is also rather simple once you get your head around the main concepts, the main difficulty was finding the end dates of corp membership however a small foreach loop solved that.</p>
+<p>As you can see I chose to store the data in a List object which I find just make it easier to work with. Then all I needed to do was call for he corp history then loop through each entry to get the full details of the corp.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C#" data-lang="C#"><span style="color:#66d9ef">public</span> <span style="color:#66d9ef">void</span> GetCorps()
+{    <span style="color:#75715e">//Get history list
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">string</span> corpHistoryJson = DownloadString(<span style="color:#e6db74">&#34;https://esi.evetech.net/latest/characters/&#34;</span> + <span style="color:#66d9ef">this</span>.charID + <span style="color:#e6db74">&#34;/corporationhistory datasource=tranquility&#34;</span>);
+    <span style="color:#66d9ef">var</span> corpHistoryResult = JsonConvert.DeserializeObject&lt;List&lt;ESICorpHistory&gt;&gt;(corpHistoryJson);
+    <span style="color:#75715e">//Process into Corp class
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">this</span>.Corps = <span style="color:#66d9ef">new</span> List&lt;Corp&gt;();
+    Parallel.ForEach(corpHistoryResult, history =&gt;
+    {
+        <span style="color:#75715e">//corp name
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">string</span> corpNameSearch = DownloadString(<span style="color:#e6db74">&#34;https://esi.evetech.net/latest/corporations/&#34;</span> + history.corporation_id + <span style="color:#e6db74">&#34;/?datasource=tranquility&#34;</span>);
+        <span style="color:#66d9ef">var</span> corpNameSearchResult = JsonConvert.DeserializeObject&lt;ESICorp&gt;(corpNameSearch);
+        <span style="color:#75715e">//
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">var</span> corp = <span style="color:#66d9ef">new</span> Corp
+        {
+            corpID = history.corporation_id,
+            corpName = corpNameSearchResult.name,
+            startDate = DateTime.Parse(history.start_date)
+        };
+        Corps.Add(corp);
+    });
+    <span style="color:#75715e">//Populate end dates
+</span><span style="color:#75715e"></span>    Corp previousCorp = <span style="color:#66d9ef">null</span>;
+    <span style="color:#66d9ef">foreach</span> (<span style="color:#66d9ef">var</span> c <span style="color:#66d9ef">in</span> Corps.OrderByDescending(c =&gt; c.startDate))
+    {
+        <span style="color:#66d9ef">if</span> (previousCorp != <span style="color:#66d9ef">null</span>)
+        {
+            c.endDate = previousCorp.startDate;
+        }
+        <span style="color:#66d9ef">else</span>
+        {
+            c.endDate = DateTime.MaxValue;
+        }
+        previousCorp = c;
+    }
+}
+</code></pre></div><h2 id="finding-connections">Finding Connections<a hidden class="anchor" aria-hidden="true" href="#finding-connections">#</a></h2>
+<p>The last step was to find the connections. This was rather difficult to figure out however I believe I found an efficient way to do so and although it may look a bit bulky it takes no time at all to actually process.</p>
+<p>The way this works is first, excluding all rookie NPC corps as they are irrelevant to the point of this task. Next it runs foreach of the main characters corp and another foreach of users matching their history. Then for each of those characters it gets the overlapping corp and calculates the start/end dates where you shared the history.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-C#" data-lang="C#"><span style="color:#66d9ef">public</span> List&lt;CharacterConnection&gt; FindConnections(List&lt;Character&gt; pastedCharacters)
+{
+    <span style="color:#66d9ef">var</span> Connections = <span style="color:#66d9ef">new</span> List&lt;CharacterConnection&gt;();
+    <span style="color:#75715e">//Define rookie corps to ignore
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">var</span> rookieCorps = <span style="color:#66d9ef">new</span> <span style="color:#66d9ef">string</span>[] { <span style="color:#e6db74">&#34;Hedion University&#34;</span>, <span style="color:#e6db74">&#34;Imperial Academy&#34;</span>, <span style="color:#e6db74">&#34;Royal Amarr Institute&#34;</span>, <span style="color:#e6db74">&#34;School of Applied Knowledge&#34;</span>, <span style="color:#e6db74">&#34;Science and Trade Institute&#34;</span>, <span style="color:#e6db74">&#34;State War Academy&#34;</span>, <span style="color:#e6db74">&#34;Center for Advanced Studies&#34;</span>, <span style="color:#e6db74">&#34;Federal Navy Academy&#34;</span>, <span style="color:#e6db74">&#34;University of Caille&#34;</span>, <span style="color:#e6db74">&#34;Pator Tech School&#34;</span>, <span style="color:#e6db74">&#34;Republic Military School&#34;</span>, <span style="color:#e6db74">&#34;Republic University&#34;</span>, <span style="color:#e6db74">&#34;Viziam&#34;</span>, <span style="color:#e6db74">&#34;Ministry of War&#34;</span>, <span style="color:#e6db74">&#34;Imperial Shipment&#34;</span>, <span style="color:#e6db74">&#34;Perkone&#34;</span>, <span style="color:#e6db74">&#34;Caldari Provisions&#34;</span>, <span style="color:#e6db74">&#34;Deep Core Mining Inc.&#34;</span>, <span style="color:#e6db74">&#34;The Scope&#34;</span>, <span style="color:#e6db74">&#34;Aliastra&#34;</span>, <span style="color:#e6db74">&#34;Garoun Investment Bank&#34;</span>, <span style="color:#e6db74">&#34;Brutor Tribe&#34;</span>, <span style="color:#e6db74">&#34;Sebiestor Tribe&#34;</span>, <span style="color:#e6db74">&#34;Native Freshfood&#34;</span>, <span style="color:#e6db74">&#34;Ministry of Internal Order&#34;</span>, <span style="color:#e6db74">&#34;Expert Distribution&#34;</span>, <span style="color:#e6db74">&#34;Impetus&#34;</span>, <span style="color:#e6db74">&#34;Brutor Tribe&#34;</span>, <span style="color:#e6db74">&#34;Amarr Imperial Navy&#34;</span>, <span style="color:#e6db74">&#34;Ytiri&#34;</span>, <span style="color:#e6db74">&#34;Federal Intelligence Office&#34;</span>, <span style="color:#e6db74">&#34;Republic Security Services&#34;</span>, <span style="color:#e6db74">&#34;Dominations&#34;</span>, <span style="color:#e6db74">&#34;Guristas&#34;</span>};
+    <span style="color:#75715e">//Loop Chars corp history
+</span><span style="color:#75715e"></span>    <span style="color:#66d9ef">foreach</span> (<span style="color:#66d9ef">var</span> corp <span style="color:#66d9ef">in</span> <span style="color:#66d9ef">this</span>.Corps.Where(c =&gt; !rookieCorps.Contains(c.corpName)))
+    {
+        <span style="color:#75715e">//get pasted chars who share that corp at same time
+</span><span style="color:#75715e"></span>        <span style="color:#66d9ef">foreach</span> (<span style="color:#66d9ef">var</span> match <span style="color:#66d9ef">in</span> pastedCharacters.Where(p =&gt; p.Corps.Count(c =&gt; c.corpID == corp.corpID &amp;&amp; c.startDate &lt; corp.endDate &amp;&amp; corp.startDate &lt; c.endDate) &gt; <span style="color:#ae81ff">0</span>))
+        {
+            <span style="color:#66d9ef">var</span> matchEntry = match.Corps.FirstOrDefault(c =&gt; c.corpID == corp.corpID &amp;&amp; c.startDate &lt; corp.endDate &amp;&amp; corp.startDate &lt; c.endDate);
+            <span style="color:#75715e">//Calculate overlap dates
+</span><span style="color:#75715e"></span>            DateTime entityStart;
+            DateTime entityEnd;
+            <span style="color:#66d9ef">if</span>(matchEntry.startDate &gt; corp.startDate) { entityStart = matchEntry.startDate;} <span style="color:#66d9ef">else</span> { entityStart = corp.startDate;}
+            <span style="color:#66d9ef">if</span>(matchEntry.endDate &gt; corp.endDate) { entityEnd = corp.endDate;} <span style="color:#66d9ef">else</span> { entityEnd = matchEntry.endDate;}
+            <span style="color:#66d9ef">var</span> connection = <span style="color:#66d9ef">new</span> CharacterConnection()
+            {
+                charID = match.charID,
+                charName = match.charName,
+                entityID = corp.corpID,
+                entityName = corp.corpName,
+                overlapStart = entityStart,
+                overlapEnd = entityEnd
+            };
+            Connections.Add(connection);
+        }
+    }
+    <span style="color:#66d9ef">return</span> Connections;
+}
+</code></pre></div><h2 id="alliances">Alliances<a hidden class="anchor" aria-hidden="true" href="#alliances">#</a></h2>
+<p>Alliances are a whole different beast and I am yet to dream up an efficient way to calculate those. I know it will involve pulling the alliance history for every corp in every players history but then building a timeline and matching it all up is way over my head. This is an ongoing project though and I am confident I will figure it out some day!</p>
+
+</div>
+  <footer class="post-footer">
+    <ul class="post-tags">
+      <li><a href="https://KristenTidmuss.dev/tags/eve-online/">EvE Online</a></li>
+      <li><a href="https://KristenTidmuss.dev/tags/c#/">C#</a></li>
+      <li><a href="https://KristenTidmuss.dev/tags/mvc/">MVC</a></li>
+    </ul>
+  </footer>
+</article>
+    </main><footer class="footer">
+    <span>&copy; 2021 <a href="https://KristenTidmuss.dev">Kristen Tidmuss</a></span>
+</footer>
+<a href="#top" aria-label="go to top" title="Go to Top (Alt + G)">
+    <button class="top-link" id="top-link" type="button" accesskey="g">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12 6" fill="currentColor">
+            <path d="M12 6H0l6-6z" />
+        </svg>
+    </button>
+</a>
+
+
+
+<script defer src="/assets/js/highlight.min.27cd435cc9ed6abb4b496581b151804f79f366c412620272bb94e2f5f598ebcc.js" integrity="sha256-J81DXMntartLSWWBsVGAT3nzZsQSYgJyu5Ti9fWY68w="
+    onload="hljs.initHighlightingOnLoad();"></script>
+<script>
+    window.onload = function () {
+        if (localStorage.getItem("menu-scroll-position")) {
+            document.getElementById('menu').scrollLeft = localStorage.getItem("menu-scroll-position");
+        }
+    }
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener("click", function (e) {
+            e.preventDefault();
+            var id = this.getAttribute("href").substr(1);
+            if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView({
+                    behavior: "smooth"
+                });
+            } else {
+                document.querySelector(`[id='${decodeURIComponent(id)}']`).scrollIntoView();
+            }
+            if (id === "top") {
+                history.replaceState(null, null, " ");
+            } else {
+                history.pushState(null, null, `#${id}`);
+            }
+        });
+    });
+    var mybutton = document.getElementById("top-link");
+    window.onscroll = function () {
+        if (document.body.scrollTop > 800 || document.documentElement.scrollTop > 800) {
+            mybutton.style.visibility = "visible";
+            mybutton.style.opacity = "1";
+        } else {
+            mybutton.style.visibility = "hidden";
+            mybutton.style.opacity = "0";
+        }
+    };
+
+    function menu_on_scroll() {
+        localStorage.setItem("menu-scroll-position", document.getElementById('menu').scrollLeft);
+    }
+
+</script>
+
+</body>
+
+</html>
