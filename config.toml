@@ -1,7 +1,7 @@
 baseURL = "https://KristenTidmuss.dev"
 languageCode = "en-us"
 title = "Kristen Tidmuss"
-theme = "PaperMod"
+theme = "PaperModTheme"
 
 [params]
 defaultTheme = "dark"
