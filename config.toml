@@ -2,7 +2,6 @@ baseURL = "https://KristenTidmuss.dev"
 languageCode = "en-us"
 title = "Kristen Tidmuss"
 theme = "PaperMod"
-publishDir = "docs"
 
 [params]
 defaultTheme = "dark"
