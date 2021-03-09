@@ -8,6 +8,7 @@ defaultTheme = "dark"
 disableThemeToggle = true
 ShowReadingTime = true
 env = "production"
+description="Personal portfolio for Kristen Tidmuss"
 
 [params.profileMode]
 enabled = true
